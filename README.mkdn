@@ -1,0 +1,39 @@
+# NAME
+
+Gentoo::XML - Work with various Gentoo XML documents in an object oriented manner
+
+# VERSION
+
+version 0.001000
+
+# METHODS
+
+## `load_xml`
+
+    my $object = Gentoo::XML->load_xml( $type => $value );
+
+- `$type = `**`"string"`**
+
+    Load `$value` as either a scalar or scalar reference.
+
+- `$type = `**`"IO"`**
+
+    Read `$value` as a File Handle
+
+- `$type = `**`"location"`**
+
+    Read `$value` by opening the URI
+
+See related documentation on `XML DOM` Parsing in
+[`XML::LibXML::Parser`](https://metacpan.org/pod/XML::LibXML::Parser#DOM-Parser)
+
+# AUTHOR
+
+Kent Fredric &lt;kentnl@cpan.org>
+
+# COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2015 by Kent Fredric &lt;kentfredric@gmail.com>.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
