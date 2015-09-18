@@ -29,11 +29,12 @@ my %WriteMakefileArgs = (
   "TEST_REQUIRES" => {
     "ExtUtils::MakeMaker" => 0,
     "File::Spec" => 0,
+    "Test::Deep" => 0,
     "Test::More" => "0.89"
   },
   "VERSION" => "0.001000",
   "test" => {
-    "TESTS" => "t/*.t t/00-compile/*.t"
+    "TESTS" => "t/*.t t/00-compile/*.t t/internals/*.t"
   }
 );
 
@@ -45,6 +46,7 @@ my %FallbackPrereqs = (
   "Module::Load" => 0,
   "Safe::Isa" => 0,
   "Scalar::Util" => 0,
+  "Test::Deep" => 0,
   "Test::More" => "0.89",
   "XML::LibXML" => 0,
   "parent" => 0,
