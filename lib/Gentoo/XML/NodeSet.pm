@@ -22,7 +22,7 @@ NodeSet is a factory class.
 
 sub inflate {
   my ( $class, $doc, $name ) = @_;
-  my ($module) = $class->_meta_nodeset->class_for_element($name);
+  my ($module) = $class->meta_nodeset->class_for_element($name);
   require Module::Load;
   Module::Load::load($module);    ## no critic (ProhibitCallsToUnexportedSubs)
   return $module->inflate( $doc, $name );

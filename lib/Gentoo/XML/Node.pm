@@ -106,7 +106,7 @@ When called on an object or a class which is a subclass
 of Gentoo::XML::Node, returns an object for managing internals
 of that Node
 
-  my $meta_nodeset = NodeSetSubClass->meta_nodeset();
+  my $meta_node = NodeClass->meta_node();
 
 See L<< C<_MetaNodeSet>|Gentoo::XML::Node::_MetaNode >>
 
