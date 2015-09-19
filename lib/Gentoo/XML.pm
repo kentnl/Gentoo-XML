@@ -72,3 +72,41 @@ sub _inflate_doc {
 
 1;
 
+=head1 DESCRIPTION
+
+This module is a toolkit for reading, inspecting, modifying, and writing XML files
+in Gentoo.
+
+C<Gentoo::XML> is the primary gateway.
+
+  my $object = Gentoo::XML->load_xml( string => $xml );
+
+Parses the given XML and then reads its C<DTD> to divine its handler.
+
+Known C<DTD>'s and their Handler classes are mapped in C<%Gentoo::XML::DTDS>.
+
+The relevant handler class is then C<load>'ed and the parsed document is
+passed along with the discovered C<DOCTYPE> name.
+
+  my $object = Gentoo::XML::Metadata->inflate( $xml_libxml_document, 'pkgmetadata' );
+
+That class, ( At least, when underwritten by C<Gentoo::XML::NodeSet> ) will
+in turn look up C<'pkgmetadata'>  ( The C<DOCTYPE> name ) in its C<%ELEMENTS>
+hash and combine it with its C<$PREFIX> to find the final node class.
+
+That class is in turn loaded and inflated:
+
+  my $object = Gentoo::XML::Metadata::PkgMetadata->inflate( $xml_libxml_document, 'pkgmetadata' );
+
+Which leads you with:
+
+A "Root" node object describing the document.
+
+When underwritten by C<Gentoo::XML::Node>, nodes can have generated accessors for
+child nodes.
+
+  if ( $object->has_longdescription() ) {
+     for my $desc ( $object->longdescription_collection ) {
+        $desc->isa('Gentoo::XML::Metadata::LongDescription') # true
+     }
+  }

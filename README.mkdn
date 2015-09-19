@@ -6,6 +6,45 @@ Gentoo::XML - Work with various Gentoo XML documents in an object oriented manne
 
 version 0.001000
 
+# DESCRIPTION
+
+This module is a toolkit for reading, inspecting, modifying, and writing XML files
+in Gentoo.
+
+`Gentoo::XML` is the primary gateway.
+
+    my $object = Gentoo::XML->load_xml( string => $xml );
+
+Parses the given XML and then reads its `DTD` to divine its handler.
+
+Known `DTD`'s and their Handler classes are mapped in `%Gentoo::XML::DTDS`.
+
+The relevant handler class is then `load`'ed and the parsed document is
+passed along with the discovered `DOCTYPE` name.
+
+    my $object = Gentoo::XML::Metadata->inflate( $xml_libxml_document, 'pkgmetadata' );
+
+That class, ( At least, when underwritten by `Gentoo::XML::NodeSet` ) will
+in turn look up `'pkgmetadata'`  ( The `DOCTYPE` name ) in its `%ELEMENTS`
+hash and combine it with its `$PREFIX` to find the final node class.
+
+That class is in turn loaded and inflated:
+
+    my $object = Gentoo::XML::Metadata::PkgMetadata->inflate( $xml_libxml_document, 'pkgmetadata' );
+
+Which leads you with:
+
+A "Root" node object describing the document.
+
+When underwritten by `Gentoo::XML::Node`, nodes can have generated accessors for
+child nodes.
+
+    if ( $object->has_longdescription() ) {
+       for my $desc ( $object->longdescription_collection ) {
+          $desc->isa('Gentoo::XML::Metadata::LongDescription') # true
+       }
+    }
+
 # METHODS
 
 ## `load_xml`
