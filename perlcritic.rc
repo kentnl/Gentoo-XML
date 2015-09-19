@@ -126,7 +126,7 @@ allow_includes = 1
 
 [Documentation::PodSpelling]
 spell_command = aspell list --lang en_US
-stop_words = Metadata metadata xml pkgmetadata longdescription changelog undef URI NodeSet
+stop_words = Metadata metadata xml pkgmetadata longdescription changelog undef URI NodeSet accessors metacollection subclasses metaobject accessor nodeset
 
 [Documentation::ProhibitAdjacentLinks]
 

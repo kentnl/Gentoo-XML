@@ -33,10 +33,10 @@ _XML_
 }
 
 cmp_deeply( document->to_string,                     re(qr/\A<\?xml/), "Root" );
-cmp_deeply( document('x')->to_string,                re(qr/\A<x>/),   "-> x" );
-cmp_deeply( document('x/y')->to_string,              re(qr/\A<y>/),   "-> x/y" );
-cmp_deeply( document('x/z')->to_string,              re(qr/\A<z>/),   "-> x/z" );
-cmp_deeply( document('x')->_get_path('y')->toString, re(qr/\A<y>/),   "->x , ->y" );
+cmp_deeply( document('x')->to_string,                re(qr/\A<x>/),    "-> x" );
+cmp_deeply( document('x/y')->to_string,              re(qr/\A<y>/),    "-> x/y" );
+cmp_deeply( document('x/z')->to_string,              re(qr/\A<z>/),    "-> x/z" );
+cmp_deeply( document('x')->_get_path('y')->toString, re(qr/\A<y>/),    "->x , ->y" );
 
 done_testing;
 

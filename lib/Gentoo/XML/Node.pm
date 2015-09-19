@@ -12,7 +12,6 @@ our $VERSION = '0.001000';
 
 use Carp qw( croak );
 use Safe::Isa qw( $_isa );
-use Scalar::Util qw( blessed );
 
 =method inflate
 
@@ -97,4 +96,27 @@ sub _document   { return $_[0]->_root_node->ownerDocument }
 sub _find_nodes { return $_[0]->_root_node->findnodes( $_[1] ) }
 sub _get_path   { return $_[0]->_root_node->findnodes( $_[1] )->pop }
 
+{
+  my $meta = {};
+  use Scalar::Util qw( blessed );
+
+=method C<meta_node>
+
+When called on an object or a class which is a subclass
+of Gentoo::XML::Node, returns an object for managing internals
+of that Node
+
+  my $meta_nodeset = NodeSetSubClass->meta_nodeset();
+
+See L<< C<_MetaNodeSet>|Gentoo::XML::Node::_MetaNode >>
+
+=cut
+
+  sub meta_node {
+    my $class = blessed $_[0] ? blessed $_[0] : $_[0];
+    return $meta->{$class} if exists $meta->{$class};
+    require Gentoo::XML::Node::_MetaNode;
+    return $meta->{$class} = Gentoo::XML::Node::_MetaNode->new( { class => $class, } );
+  }
+}
 1;

@@ -12,27 +12,45 @@ our $VERSION = '0.00100';
 
 =method C<inflate>
 
+Inflate C<$document> into an instance of the NodeSet dictated class.
+
   my $root_node = ::NodeSet->inflate( $document, $nodename );
 
-NodeSet is a factory class
+NodeSet is a factory class.
 
 =cut
 
 sub inflate {
   my ( $class, $doc, $name ) = @_;
-  my ($module) = do {
-    no strict 'refs';
-    no warnings 'once';
-    if ( not exists ${ $class . '::ELEMENTS' }{$name} ) {
-      require Carp;
-      Carp::croak("Unknown element $name");
-    }
-    ${ $class . '::PREFIX' } . ${ $class . '::ELEMENTS' }{$name};
-  };
+  my ($module) = $class->_meta_nodeset->class_for_element($name);
   require Module::Load;
   Module::Load::load($module);    ## no critic (ProhibitCallsToUnexportedSubs)
-  return $module->inflate( $doc, q;.; );
+  return $module->inflate( $doc, $name );
 }
+{
+  my $meta = {};
+  use Scalar::Util qw( blessed );
+
+=method C<meta_nodeset>
+
+When called on an object or a class which is a subclass
+of Gentoo::XML::NodeSet, returns an object for managing internals
+of that NodeSet
+
+  my $meta_nodeset = NodeSetSubClass->meta_nodeset();
+
+See L<< C<_MetaNodeSet>|Gentoo::XML::NodeSet::_MetaNodeSet >>
+
+=cut
+
+  sub meta_nodeset {
+    my $class = blessed $_[0] ? blessed $_[0] : $_[0];
+    return $meta->{$class} if exists $meta->{$class};
+    require Gentoo::XML::NodeSet::_MetaNodeSet;
+    return $meta->{$class} = Gentoo::XML::NodeSet::_MetaNodeSet->new( { class => $class, } );
+  }
+}
+
 1;
 
 =head1 SYNOPSIS
@@ -41,7 +59,7 @@ sub inflate {
 
   use parent 'Gentoo::XML::NodeSet';
 
-  our $PREFIX = "Project::SomeName::";
+  our $PREFIX   = "Project::SomeName::";
   our %ELEMENTS = (
     'xml_element_name' => 'SuffixString';
   );

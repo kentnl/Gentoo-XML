@@ -18,7 +18,10 @@ use Path::Tiny qw(path);
 my $bundle = create_bundle('Example::Author::KENTNL');
 $bundle->configure;
 
-my @stopwords = (qw( Metadata metadata xml pkgmetadata longdescription changelog undef URI NodeSet ));
+my @stopwords = (
+  qw( Metadata metadata xml pkgmetadata longdescription changelog undef URI NodeSet
+    accessors  metacollection subclasses metaobject accessor nodeset )
+);
 for my $wordlist (@stopwords) {
   $bundle->add_or_append_policy_field( 'Documentation::PodSpelling' => ( 'stop_words' => $wordlist ) );
 }

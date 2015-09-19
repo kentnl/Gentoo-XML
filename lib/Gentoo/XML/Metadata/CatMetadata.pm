@@ -12,5 +12,7 @@ our $VERSION = '0.001000';
 
 use parent 'Gentoo::XML::Node';
 
+__PACKAGE__->meta_node->add_collection( longdescription => {} );
+
 1;
 
