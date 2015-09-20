@@ -10,45 +10,22 @@ our $VERSION = '0.00100';
 
 # AUTHORITY
 
-=method C<inflate>
+use Scalar::Util qw( blessed );
 
-Inflate C<$document> into an instance of the NodeSet dictated class.
+our %META_NODESETS;
 
-  my $root_node = ::NodeSet->inflate( $document, $nodename );
-
-NodeSet is a factory class.
-
-=cut
-
+#& $class->inflate($node, $element_name)
 sub inflate {
-  my ( $class, $doc, $name ) = @_;
-  my ($module) = $class->meta_nodeset->class_for_element($name);
-  require Module::Load;
-  Module::Load::load($module);    ## no critic (ProhibitCallsToUnexportedSubs)
-  return $module->inflate( $doc, $name );
+  $_[0]->meta_nodeset->class_for_element( $_[2] )->inflate( $_[1], $_[2] );
 }
-{
-  my $meta = {};
-  use Scalar::Util qw( blessed );
 
-=method C<meta_nodeset>
-
-When called on an object or a class which is a subclass
-of Gentoo::XML::NodeSet, returns an object for managing internals
-of that NodeSet
-
-  my $meta_nodeset = NodeSetSubClass->meta_nodeset();
-
-See L<< C<_MetaNodeSet>|Gentoo::XML::NodeSet::_MetaNodeSet >>
-
-=cut
-
-  sub meta_nodeset {
-    my $class = blessed $_[0] ? blessed $_[0] : $_[0];
-    return $meta->{$class} if exists $meta->{$class};
-    require Gentoo::XML::NodeSet::_MetaNodeSet;
-    return $meta->{$class} = Gentoo::XML::NodeSet::_MetaNodeSet->new( { class => $class, } );
-  }
+#& $instance->meta_nodeset()
+#& $class->meta_nodeset()
+sub meta_nodeset {
+  my $class = blessed $_[0] ? blessed $_[0] : $_[0];
+  return $META_NODESETS{$class} if exists $META_NODESETS{$class};
+  require Gentoo::XML::NodeSet::_MetaNodeSet;
+  return $META_NODESETS{$class} = Gentoo::XML::NodeSet::_MetaNodeSet->new( { class => $class, } );
 }
 
 1;
@@ -69,5 +46,23 @@ See L<< C<_MetaNodeSet>|Gentoo::XML::NodeSet::_MetaNodeSet >>
 
   my $node = Project::SomeName->inflate( $xml_dom, 'xml_element_name' );
   # $node isa Project::SomeName::SuffixString;
+
+=method C<inflate>
+
+Inflate C<$document> into an instance of the NodeSet dictated class.
+
+  my $root_node = ::NodeSet->inflate( $document, $nodename );
+
+NodeSet is a factory class.
+
+=method C<meta_nodeset>
+
+When called on an object or a class which is a subclass
+of Gentoo::XML::NodeSet, returns an object for managing internals
+of that NodeSet
+
+  my $meta_nodeset = NodeSetSubClass->meta_nodeset();
+
+See L<< C<_MetaNodeSet>|Gentoo::XML::NodeSet::_MetaNodeSet >>
 
 =cut

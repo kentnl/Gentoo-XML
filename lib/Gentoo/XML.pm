@@ -6,6 +6,8 @@ package Gentoo::XML;
 
 our $VERSION = '0.001000';
 
+use Carp qw( croak );
+
 # ABSTRACT: Work with various Gentoo XML documents in an object oriented manner
 
 # AUTHORITY
@@ -19,55 +21,34 @@ our %PARSER_OPTIONS = (
   no_network   => 0,
 );
 
-=method C<load_xml>
-
-  my $object = Gentoo::XML->load_xml( $type => $value );
-
-=over 4
-
-=item * C<$type = >B<C<"string">>
-
-Load C<$value> as either a scalar or scalar reference.
-
-=item * C<$type = >B<C<"IO">>
-
-Read C<$value> as a File Handle
-
-=item * C<$type = >B<C<"location">>
-
-Read C<$value> by opening the URI
-
-=back
-
-See related documentation on C<XML DOM> Parsing in
-L<< C<XML::LibXML::Parser>|XML::LibXML::Parser/DOM Parser >>
-
-=cut
-
+#& $class->load_xml($type, $value)
 sub load_xml {
-  my ( $class, $type, $file ) = @_;
-  return $class->_inflate_doc( $class->_parser->load_xml( $type => $file ) );
+  $_[0]->_inflate_doc( $_[0]->_parser->load_xml( $_[1] => $_[2] ) );
 }
 
+#& $class->handler_for_dtd($dtd)
+sub handler_for_dtd {
+  if ( exists $DTDS{ $_[1] } ) {
+    local $@ = undef;
+    eval "require $DTDS{ $_[1] }; 1" or croak($@);
+    return $DTDS{ $_[1] };
+  }
+  croak("Unknown DTD $_[1]");
+}
+
+#& $class->_parser_options()
 sub _parser_options { %PARSER_OPTIONS }
 
+#& $class->_parser()
 sub _parser {
   require XML::LibXML;
   return XML::LibXML->new( $_[0]->_parser_options );
 }
 
+#& $class->_inflate_doc($doc)
 sub _inflate_doc {
-  my ( undef, $doc ) = @_;
-  my $dtd      = $doc->internalSubset;
-  my $dispatch = $dtd->systemId;
-  my $name     = $dtd->getName;
-  if ( not exists $DTDS{$dispatch} ) {
-    require Carp;
-    Carp::croak("Unknown DTD $dispatch");
-  }
-  require Module::Load;
-  Module::Load::load( $DTDS{$dispatch} );    ## no critic (ProhibitCallsToUnexportedSubs)
-  return $DTDS{$dispatch}->inflate( $doc, $name );
+  my $dtd = $_[1]->internalSubset;
+  return $_[0]->handler_for_dtd( $dtd->systemId )->inflate( $_[1], $dtd->getName );
 }
 
 1;
@@ -110,3 +91,36 @@ child nodes.
         $desc->isa('Gentoo::XML::Metadata::LongDescription') # true
      }
   }
+
+=method C<handler_for_dtd>
+
+Given a C<SYSTEM> C<DTD> Identifier, returns the class that handles the given C<DTD>.
+
+  my $handler_class = Gentoo::XML->handler_for_dtd('http://www.gentoo.org/dtd/metadata.dtd');
+
+Class will be loaded for you.
+
+=method C<load_xml>
+
+  my $object = Gentoo::XML->load_xml( $type => $value );
+
+=over 4
+
+=item * C<$type = >B<C<"string">>
+
+Load C<$value> as either a scalar or scalar reference.
+
+=item * C<$type = >B<C<"IO">>
+
+Read C<$value> as a File Handle
+
+=item * C<$type = >B<C<"location">>
+
+Read C<$value> by opening the URI
+
+=back
+
+See related documentation on C<XML DOM> Parsing in
+L<< C<XML::LibXML::Parser>|XML::LibXML::Parser/DOM Parser >>
+
+=cut

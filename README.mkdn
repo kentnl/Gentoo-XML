@@ -47,6 +47,14 @@ child nodes.
 
 # METHODS
 
+## `handler_for_dtd`
+
+Given a `SYSTEM` `DTD` Identifier, returns the class that handles the given `DTD`.
+
+    my $handler_class = Gentoo::XML->handler_for_dtd('http://www.gentoo.org/dtd/metadata.dtd');
+
+Class will be loaded for you.
+
 ## `load_xml`
 
     my $object = Gentoo::XML->load_xml( $type => $value );

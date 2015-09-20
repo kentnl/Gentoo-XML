@@ -6,27 +6,43 @@ package Gentoo::XML::NodeSet::_MetaNodeSet;
 
 our $VERSION = '0.001000';
 
+use Carp qw( croak );
+
 # ABSTRACT: A Meta-Object for subclasses of Gentoo::XML::NodeSet
 
 # AUTHORITY
 
+#& $class->new(\%args)
 sub new { bless { %{ $_[1] } }, $_[0] }
-sub class       { $_[0]->{class} }
-sub has_element { exists $_[0]->elements->{ $_[1] } }
-sub element     { $_[0]->elements->{ $_[1] } }
 
+#& $instance->class
+sub class { $_[0]->{class} }
+
+#& $instance->has_element( $element_name )
+sub has_element { exists $_[0]->elements->{ $_[1] } }
+
+#& $instance->element( $element_name )
+sub element { $_[0]->elements->{ $_[1] } }
+
+#& $instance->elements
 sub elements {
   no strict 'refs';
   no warnings 'once';
   \%{ $_[0]->{class} . q[::ELEMENTS] };
 }
 
+#& $instance->class_for_element( $element_name )
 sub class_for_element {
-  return $_[0]->prefix . $_[0]->element( $_[1] ) if $_[0]->has_element( $_[1] );
-  require Carp;
-  Carp::croak("Unknown element $_[1]");
+  if ( $_[0]->has_element( $_[1] ) ) {
+    my $class = $_[0]->prefix . $_[0]->element( $_[1] );
+    local $@ = undef;
+    eval "require $class; 1" or croak($@);
+    return $class;
+  }
+  croak "Unknown element $_[1]";
 }
 
+#& $instance->prefix
 sub prefix {
   no strict 'refs';
   no warnings 'once';

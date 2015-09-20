@@ -31,14 +31,13 @@ sub nodeset_class {
     no warnings 'once';
     ${ $class . '::NODESET' };
   };
-  $_[0]->{nodeset_class} ||= do {
+  my $nodeset_class = $_[0]->{nodeset_class} ||= do {
     $class =~ s/::[^:]+$//sx;
     $class;
   };
-  require Module::Load;
-  Module::Load::load( $_[0]->{nodeset_class} );    ## no critic (Subroutines::ProhibitCallsToUnexportedSubs)
-
-  return $_[0]->{nodeset_class};
+  local $@;
+  eval "require $nodeset_class; 1" or croak $@;
+  return $nodeset_class;
 }
 
 sub add_collection {

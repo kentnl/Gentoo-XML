@@ -32,8 +32,13 @@ sub element {
 }
 
 sub element_class {
-  return $_[0]->{element_class} if exists $_[0]->{element_class};
-  return $_[0]->meta_node->class_for_element( $_[0]->element );
+  if ( exists $_[0]->{element_class} ) {
+    my $element_class = $_[0]->{element_class};
+    local $@ = undef;
+    eval "require $element_class; 1" or croak $@;
+    return $element_class;
+  }
+  $_[0]->meta_node->class_for_element( $_[0]->element );
 }
 
 sub gensub_collection_has {
@@ -49,8 +54,6 @@ sub gensub_collection_elements {
   my $element_class = $collection->element_class;
   return sub {
     my ($self) = @_;
-    require Module::Load;
-    Module::Load::load($element_class);    ## no critic (Subroutines::ProhibitCallsToUnexportedSubs)
     return map { $element_class->new( _root_node => $_ ) } $self->_find_nodes( $collection->element );
   };
 }
